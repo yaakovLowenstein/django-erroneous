@@ -7,6 +7,7 @@ setup(
         'erroneous': [
             'README.rst',
             'LICENSE.txt',
+            'erroneous.templates',
         ],
     },
     author = "Mridang Agarwalla",
@@ -27,10 +28,10 @@ setup(
         'erroneous.migrations',
     ],
     zip_safe = False,
-    license = "MIT License",
+    license = "BSD License",
     install_requires = [
-        'Django>=1.3',
+        'Django>=1.4',
         'South>=0.7.2'
     ],
-    version = '0.1.0',
+    version = '0.2.0',
 )

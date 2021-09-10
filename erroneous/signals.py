@@ -1,29 +1,27 @@
-import traceback
 import sys
+import traceback
 
-from django.views.debug import ExceptionReporter
+from django.core.signals import got_request_exception
+from django.dispatch.dispatcher import receiver
 from django.http import Http404
+from django.views.debug import ExceptionReporter
 
-from erroneous.models import Error
+from .models import Error
 
-class LoggingExceptionHandler(object):
+
+@receiver(got_request_exception)
+def create_from_exception(sender, request=None, *args, **kwargs):
     """
-    The logging exception handler
+    Handles the exception upon receiving the signal.
     """
-    @staticmethod
-    def create_from_exception(sender, request=None, *args, **kwargs):
-        """
-        Handles the exception upon receiving the signal.
-        """
-        kind, info, data = sys.exc_info()
+    kind, info, data = sys.exc_info()
+    if not issubclass(kind, Http404):
 
-        if not issubclass(kind, Http404):
-
-            error = Error.objects.create(
-                kind = kind.__name__,
-                html = ExceptionReporter(request, kind, info, data).get_traceback_html(),
-                path = request.build_absolute_uri(),
-                info = info,
-                data = '\n'.join(traceback.format_exception(kind, info, data)),
-            )
-            error.save()
+        error = Error.objects.create(
+            kind=kind.__name__,
+            html=ExceptionReporter(request, kind, info, data).get_traceback_html(),
+            path=request.build_absolute_uri(),
+            info=info,
+            data="\n".join(traceback.format_exception(kind, info, data)),
+        )
+        error.save()
